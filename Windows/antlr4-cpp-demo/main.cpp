@@ -173,7 +173,7 @@ public:
 	{
 		if (fn->has_non_native == 0)return;
 
-		printf("function %s \n", fn->name.data());
+		printf("function %s \r\n", fn->name.data());
 
 		for (std::list<FnArg >::iterator arg = fn->args.begin(); arg != fn->args.end(); ++arg)
 		{
@@ -181,23 +181,23 @@ public:
 			{
 				for (std::list<ArgKey >::iterator key = arg->input.begin(); key != arg->input.end(); ++key)
 				{
-					printf("\tinput : %s->%s as %s \n", arg->id.data(), key->name.data(), key->type.data());
+					printf("\tinput : %s->%s as %s \r\n", arg->id.data(), key->name.data(), key->type.data());
 				}
 			}
 			if (arg->childkey.size() > 0)
 			{
 				for (std::list<ArgChildKey >::iterator key = arg->childkey.begin(); key != arg->childkey.end(); ++key)
 				{
-					printf("\tuse : %s->%s as %s \n", arg->id.data(), key->name.data(), key->type.data());
+					printf("\tuse : %s->%s as %s \r\n", arg->id.data(), key->name.data(), key->type.data());
 
 					for (std::list<ArgKey >::iterator ckey = key->input.begin(); ckey != key->input.end(); ++ckey)
 					{
-						printf("\tsub get : %s->%s->%s as %s \n", arg->id.data(), key->name.data(), ckey->name.data(), ckey->type.data());
+						printf("\tsub get : %s->%s->%s as %s \r\n", arg->id.data(), key->name.data(), ckey->name.data(), ckey->type.data());
 					}
 
 					for (std::list<ArgKey >::iterator ckey = key->output.begin(); ckey != key->output.end(); ++ckey)
 					{
-						printf("\tsub set : %s->%s->%s as %s \n", arg->id.data(), key->name.data(), ckey->name.data(), ckey->type.data());
+						printf("\tsub set : %s->%s->%s as %s \r\n", arg->id.data(), key->name.data(), ckey->name.data(), ckey->type.data());
 					}
 				}
 			}
@@ -205,16 +205,16 @@ public:
 			{
 				for (std::list<ArgChildKey >::iterator key = arg->enumkey.begin(); key != arg->enumkey.end(); ++key)
 				{
-					printf("\tenum : %s->[*] as %s \n", arg->id.data(), key->type.data());
+					printf("\tenum : %s->[*] as %s \r\n", arg->id.data(), key->type.data());
 
 					for (std::list<ArgKey >::iterator ckey = key->input.begin(); ckey != key->input.end(); ++ckey)
 					{
-						printf("\tsub get : %s->[*]->%s as %s \n", arg->id.data(), ckey->name.data(), ckey->type.data());
+						printf("\tsub get : %s->[*]->%s as %s \r\n", arg->id.data(), ckey->name.data(), ckey->type.data());
 					}
 
 					for (std::list<ArgKey >::iterator ckey = key->output.begin(); ckey != key->output.end(); ++ckey)
 					{
-						printf("\tsub set : %s->[*]->%s as %s \n", arg->id.data(), ckey->name.data(), ckey->type.data());
+						printf("\tsub set : %s->[*]->%s as %s \r\n", arg->id.data(), ckey->name.data(), ckey->type.data());
 					}
 				}
 			}
@@ -222,24 +222,24 @@ public:
 			{
 				for (std::list<ArgKey >::iterator key = arg->output.begin(); key != arg->output.end(); ++key)
 				{
-					printf("\toutput : %s->%s as %s \n", arg->id.data(), key->name.data(), key->type.data());
+					printf("\toutput : %s->%s as %s \r\n", arg->id.data(), key->name.data(), key->type.data());
 				}
 			}
 			if (arg->addkey.size() > 0)
 			{
 				for (std::list<ArgChildKey >::iterator key = arg->addkey.begin(); key != arg->addkey.end(); ++key)
 				{
-					printf("\tadd : %s->%s as %s \n", arg->id.data(), key->name.data(), key->type.data());
+					printf("\tadd : %s->%s as %s \r\n", arg->id.data(), key->name.data(), key->type.data());
 
 
 					for (std::list<ArgKey >::iterator ckey = key->input.begin(); ckey != key->input.end(); ++ckey)
 					{
-						printf("\tsub get : %s->%s->%s as %s \n", arg->id.data(), key->name.data(), ckey->name.data(), ckey->type.data());
+						printf("\tsub get : %s->%s->%s as %s \r\n", arg->id.data(), key->name.data(), ckey->name.data(), ckey->type.data());
 					}
 
 					for (std::list<ArgKey >::iterator ckey = key->output.begin(); ckey != key->output.end(); ++ckey)
 					{
-						printf("\tsub set : %s->%s->%s as %s \n", arg->id.data(), key->name.data(), ckey->name.data(), ckey->type.data());
+						printf("\tsub set : %s->%s->%s as %s \r\n", arg->id.data(), key->name.data(), ckey->name.data(), ckey->type.data());
 					}
 
 				}
@@ -251,17 +251,17 @@ public:
 				{
 					if (fn->target.size() > 0)
 					{
-						printf("\tcall %s on %s->%s \n", fn->func_name.data(), arg->id.data(), fn->target.data());
+						printf("\tcall %s on %s->%s \r\n", fn->func_name.data(), arg->id.data(), fn->target.data());
 					}
 					else
 					{
-						printf("\tcall %s on %s \n", fn->func_name.data(), arg->id.data());
+						printf("\tcall %s on %s \r\n", fn->func_name.data(), arg->id.data());
 					}
 				}
 			}
 
 		}
-		printf("------------------------\n");
+		printf("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-\r\n");
 	}
 
 	void dump()
@@ -281,7 +281,7 @@ public:
 		{
 			std::ifstream stream;
 
-			printf("parsing '%s' \n", file->filePath.data());
+			printf("parsing '%s' \r\n", file->filePath.data());
 
 			stream.open(file->filePath);
 
@@ -753,7 +753,7 @@ class MyVisistor :public CBaseVisitor
 		}
 		Mod->methods.push_back(curFn);
 
-		//printf("\n");
+		//printf("\r\n");
 		
 		return visitChildren(ctx);
 	}
