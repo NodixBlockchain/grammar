@@ -1,0 +1,13 @@
+
+antlr-4.7.1-complete.jar
+Windows/.vs/antlr4cpp-vs2015/v15/.suo
+Windows/.vs/antlr4cpp-vs2015/v15/Browse.VC.db
+*.ipch
+Windows/.vs/antlr4cpp-vs2015/v15/Solution.VC.db
+Windows/antlr4-cpp-demo/antlr4-cpp-demo-vs2015.vcxproj.user
+*.ilk
+*.pdb
+*.log
+*.tlog
+*.obj
+*.idb
