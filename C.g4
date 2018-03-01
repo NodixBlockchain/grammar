@@ -62,10 +62,10 @@ Tree_enum :  'tree_manager_get_first_child' ;
 
 
 
-treeSetKey : Tree_set_key  '(' '&'? Identifier ',' StringLiteral  ',' '&'? postfixExpression   ')' ';'? ;
+treeSetKey : Tree_set_key  '(' '&'? Identifier ',' StringLiteral  ',' '&'? unaryExpression   ')' ';'? ;
 treeAddKey : Tree_add_key   '(' '&'? Identifier ',' (StringLiteral | Identifier) ',' (Identifier | Constant ) ','  (( '&'? Identifier ) | NullPtr) ')' ';'? ;
 
-treeGetKey : Tree_get_key  '(' '&'? Identifier  ',' Identifier '(' (StringLiteral | Identifier) ')' ',' '&'? postfixExpression (( ',' Constant)? ',' Constant)?  ')' ';'? ;
+treeGetKey : Tree_get_key  '(' '&'? Identifier  ',' Identifier '(' (StringLiteral | Identifier) ')' ',' '&'? unaryExpression (( ',' Constant)? ',' Constant)?  ')' ';'? ;
 treeFindKey : Tree_find_key '(' '&'? Identifier ',' Identifier '(' (StringLiteral | Identifier) ')' ',' (Identifier | Constant )  ','  (( '&'? Identifier ) | NullPtr) ')' ';'? ;
 
 treeEnum : Tree_enum '(' '&'? Identifier  ',' '&'? Identifier  ',' '&'? Identifier  ')' ';'? ;

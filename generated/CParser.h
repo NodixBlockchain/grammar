@@ -256,7 +256,7 @@ public:
     antlr4::tree::TerminalNode *Tree_set_key();
     antlr4::tree::TerminalNode *Identifier();
     antlr4::tree::TerminalNode *StringLiteral();
-    PostfixExpressionContext *postfixExpression();
+    UnaryExpressionContext *unaryExpression();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -294,7 +294,7 @@ public:
     antlr4::tree::TerminalNode *Tree_get_key();
     std::vector<antlr4::tree::TerminalNode *> Identifier();
     antlr4::tree::TerminalNode* Identifier(size_t i);
-    PostfixExpressionContext *postfixExpression();
+    UnaryExpressionContext *unaryExpression();
     antlr4::tree::TerminalNode *StringLiteral();
     std::vector<antlr4::tree::TerminalNode *> Constant();
     antlr4::tree::TerminalNode* Constant(size_t i);
