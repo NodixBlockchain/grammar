@@ -16,15 +16,15 @@ Only the windows target works now.
 
 Parse preprocessed C files from a Nodix module, and track all access to nodes.
 
-parsing 'C:\bitstream\serv\block_adx\block.i' 
+parsing 'src\block_adx\block.i' 
 
-parsing 'C:\bitstream\serv\block_adx\store.i' 
+parsing 'src\block_adx\store.i' 
 
 function load_sign_module 
 
-	input : mod_def->"file" as str 
+	get : mod_def->"file" as str 
 
-	output : mod_def->"mod_ptr" as ptr 
+	set : mod_def->"mod_ptr" as ptr 
 
 	call tree_mamanger_get_node_name on mod_def 
 
@@ -32,27 +32,27 @@ function load_sign_module
 
 function init_blocks 
 
-	input : node_config->"pubKeyVersion" as i32 
+	get : node_config->"pubKeyVersion" as i32 
 
-	input : node_config->"block_version" as i32 
+	get : node_config->"block_version" as i32 
 
 	use : node_config->"sign_mod" as 0x08000008 
 
 	use : node_config->"mining" as 0xFFFFFFFF 
 
-	sub get : node_config->"mining"->"limit" as i32 
+	used key get : node_config->"mining"->"limit" as i32 
 
-	sub get : node_config->"mining"->"targettimespan" as i32 
+	used key get : node_config->"mining"->"targettimespan" as i32 
 
-	sub get : node_config->"mining"->"targetspacing" as i32 
+	used key get : node_config->"mining"->"targetspacing" as i32 
 
-	sub get : node_config->"mining"->"maxtargetspacing" as i32 
+	used key get : node_config->"mining"->"maxtargetspacing" as i32 
 
-	sub get : node_config->"mining"->"reward" as i64 
+	used key get : node_config->"mining"->"reward" as i64 
 
-	sub get : node_config->"mining"->"last_pow_block" as i64 
+	used key get : node_config->"mining"->"last_pow_block" as i64 
 
-	sub get : node_config->"mining"->"reward_halving" as i32 
+	used key get : node_config->"mining"->"reward_halving" as i32 
 
 	call load_sign_module on node_config->mod_def 
 
@@ -64,13 +64,13 @@ function init_blocks
 
 function blk_find_last_pow_block 
 
-	input : pindex->"height" as i64 
+	get : pindex->"height" as i64 
 
-	input : pindex->"blkHash" as str 
+	get : pindex->"blkHash" as str 
 
-	input : pindex->"prev" as str 
+	get : pindex->"prev" as str 
 
-	input : pindex->"time" as i32 
+	get : pindex->"time" as i32 
 
 	call load_blk_hdr on pindex 
 
@@ -80,19 +80,19 @@ function blk_find_last_pow_block
 
 function add_app_tx 
 
+	set : new_app->"appName" as str 
+
+	set : new_app->"appAddr" as btcaddr 
+
 	use : new_app->"txsout" as 0x0B080000 
 
-	sub get : new_app->"txsout"->out as  
+	used key enum : new_app->"txsout"->[*]->out
 
-	sub get : new_app->"txsout"->[*]."script" as istr 
+	used key get : new_app->"txsout"->out[*]."script" as istr 
 
-	sub set : new_app->"txsout"->[*]."app_item" as i32 
+	used key set : new_app->"txsout"->out[*]."app_item" as i32 
 
 	use : new_app->"appAddr" as 0x0B009000 
-
-	output : new_app->"appName" as str 
-
-	output : new_app->"appAddr" as btcaddr 
 
 	call release_zone_ref on new_app->txout_list 
 
@@ -162,13 +162,13 @@ function tx_add_output
 
 function new_transaction 
 
-	output : tx->"version" as i32 
+	set : tx->"version" as i32 
 
-	output : tx->"time" as i32 
+	set : tx->"time" as i32 
 
-	output : tx->"locktime" as i32 
+	set : tx->"locktime" as i32 
 
-	output : tx->"submitted" as i32 
+	set : tx->"submitted" as i32 
 
 	add : tx->"txsin" as 0x0B010000 
 
@@ -180,9 +180,9 @@ function new_transaction
 
 function parse_approot_tx 
 
-	use : tx->"txsout" as 0x0B080000 
+	set : tx->"dstaddr" as btcaddr 
 
-	output : tx->"dstaddr" as btcaddr 
+	use : tx->"txsout" as 0x0B080000 
 
 	call tree_manager_get_child_at on tx->txout_list 
 
@@ -192,9 +192,9 @@ function parse_approot_tx
 
 function make_approot_tx 
 
-	output : tx->"is_app_root" as i32 
+	set : tx->"is_app_root" as i32 
 
-	output : tx->"txid" as hash 
+	set : tx->"txid" as hash 
 
 	call new_transaction on tx 
 
@@ -208,7 +208,7 @@ function make_approot_tx
 
 function make_app_tx 
 
-	output : tx->"txid" as hash 
+	set : tx->"txid" as hash 
 
 	call new_transaction on tx 
 
@@ -232,9 +232,9 @@ function make_app_tx
 
 function make_app_item_tx 
 
-	output : tx->"app_item" as i32 
+	set : tx->"app_item" as i32 
 
-	output : tx->"txid" as hash 
+	set : tx->"txid" as hash 
 
 	call new_transaction on tx 
 
@@ -260,7 +260,7 @@ function make_app_child_obj_tx
 
 function compute_tx_hash 
 
-	output : tx->"size" as i32 
+	set : tx->"size" as i32 
 
 	call get_node_size on tx 
 
@@ -286,7 +286,7 @@ function compute_block_hash
 
 function set_block_hash 
 
-	output : block->"blkHash" as bhash 
+	set : block->"blkHash" as bhash 
 
 	call compute_block_hash on block 
 
@@ -296,9 +296,9 @@ function get_hash_list_from_tx
 
 	call tree_manager_write_node_hash on hashes 
 
-	enum : txs->[*] as  
+	enum : txs->[*] 
 
-	sub set : txs->[*]->"txid" as hash 
+	enum set : txs->[*]->"txid" as hash 
 
 	call tree_manager_get_next_child on txs->tx 
 
@@ -362,7 +362,7 @@ function load_tx_input
 
 	call load_tx on tx_out 
 
-	input : in->"txid" as hash 
+	get : in->"txid" as hash 
 
 	call get_tx_input on in 
 
@@ -452,13 +452,13 @@ function is_tx_null
 
 function get_hash_list 
 
-	output : hash_list->"hash" as bhash 
+	set : hash_list->"hash" as bhash 
 
 	call tree_manager_create_node on hash_list 
 
-	enum : hdr_list->[*] as  
+	enum : hdr_list->[*] 
 
-	sub get : hdr_list->[*]->"blkHash" as hash 
+	enum get : hdr_list->[*]->"blkHash" as hash 
 
 	call tree_manager_get_next_child on hdr_list->hdr 
 
@@ -472,7 +472,7 @@ function compute_tx_sign_hash
 
 function check_tx_input_sig 
 
-	input : tx->"txid" as str 
+	get : tx->"txid" as str 
 
 	call load_tx_input on tx 
 
@@ -500,9 +500,9 @@ function get_app_types
 
 	use : app->"txsout" as 0x0B080000 
 
-	sub get : app->"txsout"->out as  
+	used key enum : app->"txsout"->[*]->out
 
-	sub get : app->"txsout"->[*]."app_item" as i32 
+	used key get : app->"txsout"->out[*]."app_item" as i32 
 
 	call release_zone_ref on app->txout_list 
 
@@ -514,9 +514,9 @@ function get_app_scripts
 
 	use : app->"txsout" as 0x0B080000 
 
-	sub get : app->"txsout"->out as  
+	used key enum : app->"txsout"->[*]->out
 
-	sub get : app->"txsout"->[*]."app_item" as i32 
+	used key get : app->"txsout"->out[*]."app_item" as i32 
 
 	call release_zone_ref on app->txout_list 
 
@@ -524,9 +524,9 @@ function get_app_scripts
 
 function add_app_tx_type 
 
-	output : typetx->"typeName" as vstr 
+	set : typetx->"typeName" as vstr 
 
-	output : typetx->"typeId" as i32 
+	set : typetx->"typeId" as i32 
 
 	call get_tx_output on typetx 
 
@@ -534,9 +534,9 @@ function add_app_tx_type
 
 	use : app->"txsout" as 0x0B080000 
 
-	sub get : app->"txsout"->out as  
+	used key enum : app->"txsout"->[*]->out
 
-	sub get : app->"txsout"->[*]."app_item" as i32 
+	used key get : app->"txsout"->out[*]."app_item" as i32 
 
 	call release_zone_ref on app->txout_list 
 
@@ -550,9 +550,9 @@ function add_app_script
 
 	use : app->"txsout" as 0x0B080000 
 
-	sub get : app->"txsout"->out as  
+	used key enum : app->"txsout"->[*]->out
 
-	sub get : app->"txsout"->[*]."app_item" as i32 
+	used key get : app->"txsout"->out[*]."app_item" as i32 
 
 	call release_zone_ref on app->txout_list 
 
@@ -562,13 +562,13 @@ function is_app_root
 
 	use : tx->"txsin" as 0x0B010000 
 
-	sub get : tx->"txsin"->input as  
+	used key enum : tx->"txsin"->[*]->input
 
-	sub get : tx->"txsin"->[*]."txid" as hash 
+	used key get : tx->"txsin"->input[*]."txid" as hash 
 
-	sub get : tx->"txsin"->[*]."idx" as i32 
+	used key get : tx->"txsin"->input[*]."idx" as i32 
 
-	sub get : tx->"txsin"->[*]."script" as istr 
+	used key get : tx->"txsin"->input[*]."script" as istr 
 
 	call release_zone_ref on tx->txin_list 
 
@@ -602,7 +602,7 @@ function get_tx_file
 
 	call release_zone_ref on hash_list->new_file 
 
-	input : tx->"txid" as hash 
+	get : tx->"txid" as hash 
 
 	use : tx->"fileDef" as 0x00000400 
 
@@ -616,15 +616,15 @@ function obj_new
 
 	call unserialize_children on obj 
 
-	input : type->"typeId" as i32 
+	get : type->"typeId" as i32 
 
 	use : type->"txsout" as 0x0B080000 
 
-	sub get : type->"txsout"->key as  
+	used key enum : type->"txsout"->[*]->key
 
-	sub get : type->"txsout"->[*]."value" as i64 
+	used key get : type->"txsout"->key[*]."value" as i64 
 
-	sub get : type->"txsout"->[*]."script" as istr 
+	used key get : type->"txsout"->key[*]."script" as istr 
 
 	call release_zone_ref on type->type_outs 
 
@@ -652,75 +652,75 @@ function get_app_type_idxs
 
 function check_app_obj_unique 
 
-	input : obj->calc_crc32_c as istr 
+	get : obj->KeyName as istr 
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
 
 function check_tx_inputs 
 
+	set : tx->"AppName" as str 
+
+	set : tx->"app_item" as i32 
+
+	set : tx->"appType" as vstr 
+
+	set : tx->"appLayout" as vstr 
+
+	set : tx->"appModule" as vstr 
+
+	set : tx->"appObj" as vstr 
+
+	set : tx->"ObjSign" as vstr 
+
+	set : tx->"app_item" as i32 
+
+	set : tx->"appFile" as vstr 
+
+	set : tx->"app_item" as i32 
+
+	set : tx->"pObjSigned" as bool 
+
+	set : tx->"pObjType" as i32 
+
+	set : tx->"appChild" as vstr 
+
+	set : tx->"appChildOf" as hash 
+
 	use : tx->"txsin" as 0x0B010000 
 
-	sub get : tx->"txsin"->input as  
+	used key enum : tx->"txsin"->[*]->input
 
-	sub get : tx->"txsin"->[*]."txid" as hash 
+	used key get : tx->"txsin"->input[*]."txid" as hash 
 
-	sub get : tx->"txsin"->[*]."idx" as i32 
+	used key get : tx->"txsin"->input[*]."idx" as i32 
 
-	sub get : tx->"txsin"->[*]."script" as istr 
+	used key get : tx->"txsin"->input[*]."script" as istr 
 
-	sub get : tx->"txsin"->[*]."script" as istr 
+	used key get : tx->"txsin"->input[*]."script" as istr 
 
-	sub get : tx->"txsin"->[*]."script" as istr 
+	used key get : tx->"txsin"->input[*]."script" as istr 
 
-	sub get : tx->"txsin"->[*]."script" as istr 
+	used key get : tx->"txsin"->input[*]."script" as istr 
 
-	sub get : tx->"txsin"->[*]."script" as istr 
+	used key get : tx->"txsin"->input[*]."script" as istr 
 
-	sub set : tx->"txsin"->[*]."isApp" as bool 
+	used key set : tx->"txsin"->input[*]."isApp" as bool 
 
-	sub set : tx->"txsin"->[*]."appName" as str 
+	used key set : tx->"txsin"->input[*]."appName" as str 
 
-	sub set : tx->"txsin"->[*]."srcapp" as vstr 
+	used key set : tx->"txsin"->input[*]."srcapp" as vstr 
 
-	sub set : tx->"txsin"->[*]."srcaddr" as btcaddr 
+	used key set : tx->"txsin"->input[*]."srcaddr" as btcaddr 
 
-	sub set : tx->"txsin"->[*]."srcaddr" as btcaddr 
+	used key set : tx->"txsin"->input[*]."srcaddr" as btcaddr 
 
-	sub set : tx->"txsin"->[*]."value" as i64 
+	used key set : tx->"txsin"->input[*]."value" as i64 
 
-	sub set : tx->"txsin"->[*]."srcapp" as vstr 
+	used key set : tx->"txsin"->input[*]."srcapp" as vstr 
 
-	sub set : tx->"txsin"->[*]."srcaddr" as btcaddr 
+	used key set : tx->"txsin"->input[*]."srcaddr" as btcaddr 
 
-	sub set : tx->"txsin"->[*]."value" as i64 
-
-	output : tx->"AppName" as str 
-
-	output : tx->"app_item" as i32 
-
-	output : tx->"appType" as vstr 
-
-	output : tx->"appLayout" as vstr 
-
-	output : tx->"appModule" as vstr 
-
-	output : tx->"appObj" as vstr 
-
-	output : tx->"ObjSign" as vstr 
-
-	output : tx->"app_item" as i32 
-
-	output : tx->"appFile" as vstr 
-
-	output : tx->"app_item" as i32 
-
-	output : tx->"pObjSigned" as bool 
-
-	output : tx->"pObjType" as i32 
-
-	output : tx->"appChild" as vstr 
-
-	output : tx->"appChildOf" as hash 
+	used key set : tx->"txsin"->input[*]."value" as i64 
 
 	call release_zone_ref on tx->txin_list 
 
@@ -748,47 +748,47 @@ function check_tx_inputs
 
 function check_tx_outputs 
 
-	input : tx->"app_root_amnt" as i64 
+	get : tx->"app_root_amnt" as i64 
 
-	input : tx->"app_item" as i32 
+	get : tx->"app_item" as i32 
 
-	input : tx->"appObj" as str 
+	get : tx->"appObj" as str 
 
-	input : tx->"ObjSign" as istr 
+	get : tx->"ObjSign" as istr 
 
-	input : tx->"appChildOf" as hash 
+	get : tx->"appChildOf" as hash 
 
-	input : tx->"pObjSigned" as i32 
+	get : tx->"pObjSigned" as i32 
 
-	input : tx->"pObjType" as i32 
+	get : tx->"pObjType" as i32 
 
-	input : tx->"appChild" as istr 
+	get : tx->"appChild" as istr 
+
+	set : tx->"app_root_amnt" as i64 
+
+	set : tx->"objType" as i32 
+
+	set : tx->"fileHash" as hash 
+
+	set : tx->"appChildKey" as vstr 
+
+	set : tx->"newChild" as hash 
 
 	use : tx->"txsout" as 0x0B080000 
 
-	sub get : tx->"txsout"->out as  
+	used key enum : tx->"txsout"->[*]->out
 
-	sub get : tx->"txsout"->[*]."value" as i64 
+	used key get : tx->"txsout"->out[*]."value" as i64 
 
-	sub get : tx->"txsout"->[*]."script" as istr 
+	used key get : tx->"txsout"->out[*]."script" as istr 
 
-	sub get : tx->"txsout"->[*]."script" as istr 
+	used key get : tx->"txsout"->out[*]."script" as istr 
 
-	sub set : tx->"txsout"->[*]."dstaddr" as btcaddr 
-
-	use : tx->"AppName" as 0x00000001 
+	used key set : tx->"txsout"->out[*]."dstaddr" as btcaddr 
 
 	use : tx->"AppName" as 0x00000001 
 
-	output : tx->"app_root_amnt" as i64 
-
-	output : tx->"objType" as i32 
-
-	output : tx->"fileHash" as hash 
-
-	output : tx->"appChildKey" as vstr 
-
-	output : tx->"newChild" as hash 
+	use : tx->"AppName" as 0x00000001 
 
 	call compute_tx_sign_hash on tx 
 
@@ -806,7 +806,7 @@ function check_tx_outputs
 
 function find_inputs 
 
-	enum : tx_list->[*] as  
+	enum : tx_list->[*] 
 
 	call tree_manager_get_next_child on tx_list->tx 
 
@@ -814,9 +814,9 @@ function find_inputs
 
 function check_tx_list 
 
-	enum : tx_list->[*] as  
+	enum : tx_list->[*] 
 
-	sub get : tx_list->[*]->"app_root_amnt" as i64 
+	enum get : tx_list->[*]->"app_root_amnt" as i64 
 
 	call build_merkel_tree on tx_list 
 
@@ -838,13 +838,13 @@ function check_tx_list
 
 function check_block_pow 
 
-	input : hdr->"blkHash" as hash 
+	get : hdr->"blkHash" as hash 
 
-	input : hdr->"blk pow" as hash 
+	get : hdr->"blk pow" as hash 
 
-	output : hdr->"blkHash" as bhash 
+	set : hdr->"blkHash" as bhash 
 
-	output : hdr->"blk pow" as hash 
+	set : hdr->"blk pow" as hash 
 
 	call compute_block_hash on hdr 
 
@@ -854,7 +854,7 @@ function check_block_pow
 
 function get_prev_block_time 
 
-	input : header->"prev" as str 
+	get : header->"prev" as str 
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
 
@@ -874,25 +874,25 @@ function make_iadix_merkle
 
 function make_genesis_block 
 
-	output : genesis->"merkle_root" as hash 
+	set : genesis->"merkle_root" as hash 
 
-	output : genesis->"prev" as hash 
+	set : genesis->"prev" as hash 
 
-	output : genesis->"version" as i32 
+	set : genesis->"version" as i32 
 
-	output : genesis->"time" as i32 
+	set : genesis->"time" as i32 
 
-	output : genesis->"bits" as i32 
+	set : genesis->"bits" as i32 
 
-	output : genesis->"nonce" as i32 
+	set : genesis->"nonce" as i32 
 
-	output : genesis->"blkHash" as bhash 
+	set : genesis->"blkHash" as bhash 
 
-	output : genesis->"blk pow" as hash 
+	set : genesis->"blk pow" as hash 
 
-	output : genesis->"StakeMod" as i64 
+	set : genesis->"StakeMod" as i64 
 
-	output : genesis->"StakeMod2" as hash 
+	set : genesis->"StakeMod2" as hash 
 
 	call tree_manager_create_node on genesis 
 
@@ -904,37 +904,37 @@ function make_genesis_block
 
 	call store_block on genesis 
 
-	input : genesis_conf->"merkle_root" as hash 
+	get : genesis_conf->"merkle_root" as hash 
 
-	input : genesis_conf->"version" as i32 
+	get : genesis_conf->"version" as i32 
 
-	input : genesis_conf->"time" as i32 
+	get : genesis_conf->"time" as i32 
 
-	input : genesis_conf->"bits" as i32 
+	get : genesis_conf->"bits" as i32 
 
-	input : genesis_conf->"nonce" as i32 
+	get : genesis_conf->"nonce" as i32 
 
-	input : genesis_conf->"InitialStakeModifier" as i64 
+	get : genesis_conf->"InitialStakeModifier" as i64 
 
-	input : genesis_conf->"InitialStakeModifier2" as hash 
+	get : genesis_conf->"InitialStakeModifier2" as hash 
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
 
 function get_tx_data 
 
-	output : txData->"data" as vstr 
+	set : txData->"data" as vstr 
 
-	output : txData->"fee" as i64 
+	set : txData->"fee" as i64 
 
-	output : txData->"hash" as hash 
+	set : txData->"hash" as hash 
 
-	output : txData->"required" as bool 
+	set : txData->"required" as bool 
 
-	input : tx->"size" as i32 
+	get : tx->"size" as i32 
 
-	input : tx->"fee" as i64 
+	get : tx->"fee" as i64 
 
-	input : tx->"txid" as hash 
+	get : tx->"txid" as hash 
 
 	call write_node on tx 
 
@@ -942,9 +942,9 @@ function get_tx_data
 
 function blk_load_tx_ofset 
 
-	output : tx->"size" as i32 
+	set : tx->"size" as i32 
 
-	output : tx->"txid" as hash 
+	set : tx->"txid" as hash 
 
 	call tree_manager_create_node on tx 
 
@@ -954,7 +954,7 @@ function blk_load_tx_ofset
 
 function load_tx 
 
-	input : tx->"txid" as hash 
+	get : tx->"txid" as hash 
 
 	call blk_load_tx_ofset on tx 
 
@@ -980,29 +980,29 @@ function store_tx_vout
 
 function rm_app_file 
 
-	input : file->"dataHash" as hash 
+	get : file->"dataHash" as hash 
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
 
 function cancel_tx_outputs 
 
-	input : tx->"txid" as str 
+	get : tx->"txid" as str 
 
-	input : tx->"txid" as str 
+	get : tx->"txid" as str 
 
-	input : tx->"is_app_item" as i32 
+	get : tx->"is_app_item" as i32 
 
-	input : tx->"appName" as str 
+	get : tx->"appName" as str 
 
-	input : tx->"txid" as hash 
+	get : tx->"txid" as hash 
 
-	input : tx->"objChild" as str 
+	get : tx->"objChild" as str 
 
-	input : tx->"appChildOf" as str 
+	get : tx->"appChildOf" as str 
+
+	set : tx->"txid" as hash 
 
 	use : tx->"txsout" as 0x0B080000 
-
-	output : tx->"txid" as hash 
 
 	call compute_tx_hash on tx 
 
@@ -1024,11 +1024,11 @@ function cancel_tx_inputs
 
 	use : tx->"txsin" as 0x0B010000 
 
-	sub get : tx->"txsin"->input as  
+	used key enum : tx->"txsin"->[*]->input
 
-	sub get : tx->"txsin"->[*]."txid" as hash 
+	used key get : tx->"txsin"->input[*]."txid" as hash 
 
-	sub get : tx->"txsin"->[*]."idx" as i32 
+	used key get : tx->"txsin"->input[*]."idx" as i32 
 
 	call release_zone_ref on tx->txin_list 
 
@@ -1080,9 +1080,9 @@ function load_blk_txs
 
 	add : txs->"tx" as 0x0B008000 
 
-	sub set : txs->"tx"->"tx" as i32 
+	added key set : txs->"tx"->"size" as i32 
 
-	sub set : txs->"tx"->"tx" as hash 
+	added key set : txs->"tx"->"txid" as hash 
 
 	call init_node on txs->tx 
 
@@ -1094,25 +1094,25 @@ function load_blk_txs
 
 function store_tx_inputs 
 
-	input : tx->"txid" as hash 
+	get : tx->"txid" as hash 
+
+	set : tx->"txid" as hash 
 
 	use : tx->"txsin" as 0x0B010000 
 
-	sub get : tx->"txsin"->input as  
+	used key enum : tx->"txsin"->[*]->input
 
-	sub get : tx->"txsin"->[*]."txid" as hash 
+	used key get : tx->"txsin"->input[*]."txid" as hash 
 
-	sub get : tx->"txsin"->[*]."idx" as i32 
+	used key get : tx->"txsin"->input[*]."idx" as i32 
 
-	sub get : tx->"txsin"->[*]."isObjChild" as i32 
+	used key get : tx->"txsin"->input[*]."isObjChild" as i32 
 
-	sub set : tx->"txsin"->[*]."srcaddr" as btcaddr 
+	used key set : tx->"txsin"->input[*]."srcaddr" as btcaddr 
 
-	sub set : tx->"txsin"->[*]."amount" as i64 
+	used key set : tx->"txsin"->input[*]."amount" as i64 
 
-	sub set : tx->"txsin"->[*]."srcaddr" as btcaddr 
-
-	output : tx->"txid" as hash 
+	used key set : tx->"txsin"->input[*]."srcaddr" as btcaddr 
 
 	call compute_tx_hash on tx 
 
@@ -1126,17 +1126,17 @@ function store_tx_inputs
 
 function store_tx_outputs 
 
-	input : tx->"txid" as hash 
+	get : tx->"txid" as hash 
 
-	input : tx->"app_item" as i32 
+	get : tx->"app_item" as i32 
 
-	input : tx->"childOf" as i32 
+	get : tx->"childOf" as i32 
+
+	set : tx->"txid" as hash 
 
 	use : tx->"txsout" as 0x0B080000 
 
 	use : tx->"AppName" as 0x00000001 
-
-	output : tx->"txid" as hash 
 
 	call compute_tx_hash on tx 
 
@@ -1160,17 +1160,17 @@ function store_tx_outputs
 
 function load_blk_hdr 
 
+	set : hdr->"blkHash" as bhash 
+
+	set : hdr->"height" as i64 
+
+	set : hdr->"ntx" as vint 
+
+	set : hdr->"blk pow" as hash 
+
+	set : hdr->"blk pos" as hash 
+
 	use : hdr->"signature" as 0x0B800000 
-
-	output : hdr->"blkHash" as bhash 
-
-	output : hdr->"height" as i64 
-
-	output : hdr->"ntx" as vint 
-
-	output : hdr->"blk pow" as hash 
-
-	output : hdr->"blk pos" as hash 
 
 	add : hdr->"signature" as 0x0B800000 
 
@@ -1190,15 +1190,15 @@ function load_blk_hdr
 
 function store_block_txs 
 
-	enum : tx_list->[*] as  
+	enum : tx_list->[*] 
 
-	sub get : tx_list->[*]->"txid" as hash 
+	enum get : tx_list->[*]->"txid" as hash 
 
 	call tree_manager_get_node_num_children on tx_list 
 
 	call tree_manager_get_next_child on tx_list->tx 
 
-	input : header->"blkHash" as str 
+	get : header->"blkHash" as str 
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
 
@@ -1212,7 +1212,7 @@ function blk_load_app_types
 
 function blk_load_app_scripts 
 
-	input : app->"appName" as istr 
+	get : app->"appName" as istr 
 
 	call add_app_script on app 
 
@@ -1284,13 +1284,13 @@ function load_obj_childs
 
 function load_obj 
 
-	enum : obj->[*] as  
+	set : obj->"objHash" as hash 
 
-	enum : obj->[*] as  
+	set : obj->"time" as i32 
 
-	output : obj->"objHash" as hash 
+	enum : obj->[*] 
 
-	output : obj->"time" as i32 
+	enum : obj->[*] 
 
 	call obj_new on obj 
 
@@ -1322,37 +1322,37 @@ function load_obj
 
 function store_block 
 
-	enum : tx_list->[*] as  
+	enum : tx_list->[*] 
 
-	sub get : tx_list->[*]->"txid" as hash 
+	enum get : tx_list->[*]->"txid" as hash 
 
-	sub get : tx_list->[*]->"time" as i32 
+	enum get : tx_list->[*]->"time" as i32 
 
-	sub get : tx_list->[*]->"AppName" as istr 
+	enum get : tx_list->[*]->"AppName" as istr 
 
-	sub get : tx_list->[*]->"app_item" as i32 
+	enum get : tx_list->[*]->"app_item" as i32 
 
-	sub get : tx_list->[*]->"appType" as istr 
+	enum get : tx_list->[*]->"appType" as istr 
 
-	sub get : tx_list->[*]->"appObj" as istr 
+	enum get : tx_list->[*]->"appObj" as istr 
 
-	sub get : tx_list->[*]->"objType" as i32 
+	enum get : tx_list->[*]->"objType" as i32 
 
-	sub get : tx_list->[*]->"appFile" as istr 
+	enum get : tx_list->[*]->"appFile" as istr 
 
-	sub get : tx_list->[*]->"appLayout" as istr 
+	enum get : tx_list->[*]->"appLayout" as istr 
 
-	sub get : tx_list->[*]->"appModule" as istr 
+	enum get : tx_list->[*]->"appModule" as istr 
 
-	sub get : tx_list->[*]->"appChildOf" as hash 
+	enum get : tx_list->[*]->"appChildOf" as hash 
 
-	sub get : tx_list->[*]->"appChildKey" as str 
+	enum get : tx_list->[*]->"appChildKey" as str 
 
-	sub get : tx_list->[*]->"newChild" as hash 
+	enum get : tx_list->[*]->"newChild" as hash 
 
-	sub get : tx_list->[*]->"appChild" as istr 
+	enum get : tx_list->[*]->"appChild" as istr 
 
-	sub set : tx_list->[*]->"txid" as hash 
+	enum set : tx_list->[*]->"txid" as hash 
 
 	call tree_manager_get_node_num_children on tx_list 
 
@@ -1374,17 +1374,15 @@ function store_block
 
 	call store_tx_outputs on tx_list->tx 
 
-	input : header->"blkHash" as hash 
+	get : header->"blkHash" as hash 
 
-	input : header->"signature" as istr 
+	get : header->"signature" as istr 
 
-	input : header->"blk pow" as hash 
+	get : header->"blk pow" as hash 
 
-	input : header->"time" as i32 
+	get : header->"time" as i32 
 
 	call write_node on header 
 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
-
-
 
